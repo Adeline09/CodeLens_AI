@@ -14,6 +14,6 @@ CHROMA_DB_PATH = "./chroma_db"
 # Domains
 DOMAINS = ["codebase", "api_docs", "infrastructure"]
 
-# Demo project
-PROJECT_NAME = "codelens_demo"
-PROJECT_ROOT = os.getenv("PROJECT_ROOT", "./data/sample_project")
+# Indexed project
+PROJECT_NAME = "codelens_ai"
+PROJECT_ROOT = os.getenv("PROJECT_ROOT", ".")
