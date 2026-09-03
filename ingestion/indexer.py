@@ -16,7 +16,11 @@ _embedding_fn = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v
 # Get domain's collection
 def get_collection(domain: str):
     name = f"{PROJECT_NAME}_{domain}"
-    return _client.get_or_create_collection(name=name, embedding_function=_embedding_fn)
+    return _client.get_or_create_collection(
+        name=name,
+        embedding_function=_embedding_fn,
+        metadata={"hnsw:space": "cosine"},
+    )
 
 
 # Walk the repo and index every file
@@ -63,7 +67,7 @@ def index_project(root_path: str = PROJECT_ROOT) -> dict:
 
 
 # Search one domain, or all domains for "overview" questions
-def query_collection(question: str, domain: str = None, n_results: int = 5) -> str:
+def query_collection(question: str, domain: str = None, n_results: int = 5, min_similarity: float = None) -> str:
     domains_to_search = DOMAINS if domain is None else [domain]
 
     results = []
@@ -73,6 +77,8 @@ def query_collection(question: str, domain: str = None, n_results: int = 5) -> s
             continue
         r = collection.query(query_texts=[question], n_results=n_results)
         for doc, meta, dist in zip(r["documents"][0], r["metadatas"][0], r["distances"][0]):
+            if min_similarity is not None and (1 - dist) < min_similarity:
+                continue
             results.append((dist, doc, meta))
 
     if domain is None:
